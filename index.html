@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ओडी कलेक्शन ट्रॅकर ॲप</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Google Fonts - Noto Sans Devanagari -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      background-color: #f0f2f5; /* Light gray background */
+      padding-top: 20px;
+      padding-bottom: 40px;
+    }
+    .main-header {
+      background-color: #0056b3; /* A deep blue */
+      color: white;
+      padding: 20px 0;
+      margin-bottom: 30px;
+      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .main-header h1 {
+      font-size: 1.8rem; /* Responsive font size */
+      font-weight: 700;
+      margin-bottom: 0;
+    }
+     .main-header h1 .sub-title {
+        font-size: 1.1rem; /* Responsive font size */
+        font-weight: 400;
+        display: block;
+        margin-top: 5px;
+    }
+    .container-main {
+      max-width: 800px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 20px; /* Adjusted padding */
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    }
+    .card-custom {
+      border: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      margin-bottom: 20px; /* Adjusted margin */
+    }
+    .card-custom .card-header {
+      background-color: #e9ecef;
+      color: #343a40;
+      font-weight: 500;
+      border-bottom: 1px solid #dee2e6;
+      padding: 0.75rem 1.25rem; /* Standard Bootstrap padding */
+    }
+    .card-body {
+        padding: 1.25rem; /* Standard Bootstrap padding */
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+    .btn-success {
+      background-color: #28a745;
+      border-color: #28a745;
+    }
+     .btn-success:hover {
+      background-color: #1e7e34;
+      border-color: #1e7e34;
+    }
+    .form-label {
+      font-weight: 500;
+    }
+    .details-p {
+        margin-bottom: 0.6rem; /* Adjusted spacing */
+        font-size: 0.95em;
+    }
+    .details-p strong {
+        min-width: 110px; /* Adjusted width */
+        display: inline-block;
+        color: #495057;
+    }
+    .history-table th {
+        background-color: #f8f9fa;
+        font-weight: 500;
+    }
+    .history-table td, .history-table th {
+        font-size: 0.85em; /* Made history table font smaller */
+        padding: 0.5rem; /* Adjusted padding */
+        vertical-align: middle;
+    }
+    #loading {
+        font-size: 1.1rem;
+        text-align: center;
+        padding: 15px;
+    }
+    .hidden {
+      display: none !important;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-header h1 { font-size: 1.5rem; }
+        .main-header h1 .sub-title { font-size: 1rem; }
+        .container-main { padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-header">
+    <h1>अनिक फायनान्शियल सर्विसेस <span class="sub-title">(दैनंदिन ओडी ट्रकिंग सिस्टीम ॲप)</span></h1>
+  </div>
+
+  <div class="container-main">
+    <div class="card card-custom">
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="loanNoInput" class="form-label"><i class="fas fa-search"></i> कर्ज क्रमांक टाका:</label>
+          <div class="input-group">
+            <input type="text" class="form-control form-control-lg" id="loanNoInput" onkeyup="handleKeyUp(event)" placeholder="उदा. 12345">
+            <button type="button" class="btn btn-primary px-4" id="fetchDetailsBtn">
+                <i class="fas fa-arrow-right"></i> तपशील मिळवा
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="loading" class="alert alert-info hidden"><i class="fas fa-spinner fa-spin"></i> लोड होत आहे...</div>
+    <div id="statusMessage" class="mt-3 hidden"></div>
+
+
+    <div id="loanDetailsSection" class="card card-custom hidden">
+      <div class="card-header"><i class="fas fa-file-invoice-dollar"></i> कर्जाचे तपशील</div>
+      <div class="card-body">
+        <p class="details-p"><strong>ग्राहक नाव:</strong> <span id="customerName"></span></p>
+        <p class="details-p"><strong>मुद्दल ओडी:</strong> <span id="principalOD"></span></p>
+        <p class="details-p"><strong>व्याज ओडी:</strong> <span id="interestOD"></span></p>
+        <p class="details-p"><strong>एकूण ओडी:</strong> <span id="totalOD"></span></p>
+        <p class="details-p"><strong>गाव:</strong> <span id="village"></span></p>
+        <p class="details-p"><strong>मोबाईल:</strong> <span id="mobile"></span></p>
+      </div>
+    </div>
+
+    <div id="visitHistorySection" class="card card-custom hidden">
+      <div class="card-header"><i class="fas fa-history"></i> मागील भेटींचा इतिहास</div>
+      <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-sm history-table">
+                <thead>
+                    <tr>
+                        <th>भेटीची वेळ</th>
+                        <th>जमा रक्कम</th>
+                        <th>ग्राहकाचे म्हणणे</th>
+                        <th>आवश्यक कारवाई</th>
+                        <th>कर्मचारी</th>
+                    </tr>
+                </thead>
+                <tbody id="visitHistoryTableBody">
+                    <!-- History rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <p id="noHistoryMessage" class="alert alert-warning hidden mt-2"><i class="fas fa-info-circle"></i> या कर्जासाठी कोणताही भेटीचा इतिहास आढळला नाही.</p>
+      </div>
+    </div>
+
+    <div id="collectionFormSection" class="card card-custom hidden">
+      <div class="card-header"><i class="fas fa-edit"></i> नवीन भेट नोंदवा</div>
+      <div class="card-body">
+        <div class="mb-3">
+            <label for="staffName" class="form-label">कर्मचाऱ्याचे नाव:</label>
+            <input type="text" class="form-control" id="staffName" placeholder="तुमचे नाव टाका">
+        </div>
+        <div class="mb-3">
+          <label for="collectionAmount" class="form-label">ओडी जमा रक्कम:</label>
+          <input type="number" class="form-control" id="collectionAmount" value="0">
+        </div>
+        <div class="mb-3">
+          <label for="customerSays" class="form-label">ग्राहकाचे म्हणणे (काही जमा न केल्यास):</label>
+          <textarea class="form-control" id="customerSays" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="actionNeeded" class="form-label">आवश्यक कारवाई:</label>
+          <textarea class="form-control" id="actionNeeded" rows="3"></textarea>
+        </div>
+        <button type="button" class="btn btn-success btn-lg w-100" id="submitDataBtn">
+            <i class="fas fa-paper-plane"></i> भेट लॉग सबमिट करा
+        </button>
+      </div>
+    </div>
+
+  </div> <!-- /container-main -->
+
+  <!-- Bootstrap 5 JS Bundle (Popper.js included) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+  <script>
+    // IMPORTANT: This is your NEW Apps Script /exec URL (API Endpoint)
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOr3ZHqFYnCkU1s_9Zpd6roJG6ETO3_IneiPA20pAvgpyKLRHvodqNqldOBywQe3ZY/exec"; 
+
+    const loanDetailsSection = document.getElementById('loanDetailsSection');
+    const collectionFormSection = document.getElementById('collectionFormSection');
+    const visitHistorySection = document.getElementById('visitHistorySection');
+    const visitHistoryTableBody = document.getElementById('visitHistoryTableBody');
+    const noHistoryMessage = document.getElementById('noHistoryMessage');
+    const loadingDiv = document.getElementById('loading');
+    const statusMessageDiv = document.getElementById('statusMessage');
+    let currentLoanNo = '';
+
+    document.getElementById('fetchDetailsBtn').addEventListener('click', fetchLoanDetails);
+    document.getElementById('submitDataBtn').addEventListener('click', submitData);
+    document.getElementById('loanNoInput').addEventListener('keyup', handleKeyUp);
+    document.getElementById('loanNoInput').addEventListener('input', () => {
+        statusMessageDiv.classList.add('hidden');
+        statusMessageDiv.textContent = '';
+    });
+
+
+    function handleKeyUp(event) {
+        if (event.key === "Enter") {
+            fetchLoanDetails();
+        }
+    }
+
+    function showLoading(show) { loadingDiv.classList.toggle('hidden', !show); }
+    function displayStatus(message, isError = false) {
+        statusMessageDiv.innerHTML = `<i class="fas ${isError ? 'fa-times-circle' : 'fa-check-circle'}"></i> ${message}`;
+        statusMessageDiv.className = 'alert ' + (isError ? 'alert-danger' : 'alert-success');
+        statusMessageDiv.classList.remove('hidden'); // Make sure it's visible
+        setTimeout(() => {
+          statusMessageDiv.classList.add('hidden');
+          statusMessageDiv.textContent = ''; 
+          statusMessageDiv.className = ''; 
+        }, 7000);
+    }
+
+    async function fetchLoanDetails() {
+        const loanNo = document.getElementById('loanNoInput').value.trim();
+        if (!loanNo) { displayStatus("कृपया कर्ज क्रमांक टाका.", true); return; }
+        currentLoanNo = loanNo;
+        showLoading(true);
+        loanDetailsSection.classList.add('hidden');
+        collectionFormSection.classList.add('hidden');
+        visitHistorySection.classList.add('hidden');
+        visitHistoryTableBody.innerHTML = '';
+        noHistoryMessage.classList.add('hidden');
+        statusMessageDiv.classList.add('hidden'); statusMessageDiv.textContent = '';
+
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=getLoanDetails&loanNo=${encodeURIComponent(loanNo)}`);
+            
+            if (!response.ok) {
+                 const errorText = await response.text();
+                 console.error('Server error response on fetch:', response.status, errorText);
+                 throw new Error(` माहिती मिळवताना सर्व्हर त्रुटी (HTTP ${response.status}).`);
+            }
+            
+            const details = await response.json();
+            showLoading(false);
+
+            if (details.error) {
+                displayStatus(details.error, true);
+            } else {
+                document.getElementById('customerName').textContent = details.customerName || 'उपलब्ध नाही';
+                document.getElementById('principalOD').textContent = details.principalOD !== null && details.principalOD !== undefined ? details.principalOD : 'उपलब्ध नाही';
+                document.getElementById('interestOD').textContent = details.interestOD !== null && details.interestOD !== undefined ? details.interestOD : 'उपलब्ध नाही';
+                document.getElementById('totalOD').textContent = details.totalOD !== null && details.totalOD !== undefined ? details.totalOD : 'उपलब्ध नाही';
+                document.getElementById('village').textContent = details.village || 'उपलब्ध नाही';
+                document.getElementById('mobile').textContent = details.mobile || 'उपलब्ध नाही';
+                loanDetailsSection.classList.remove('hidden');
+                collectionFormSection.classList.remove('hidden');
+
+                if (details.visitHistory && details.visitHistory.length > 0) {
+                    details.visitHistory.forEach(visit => {
+                        const row = visitHistoryTableBody.insertRow();
+                        row.insertCell().textContent = visit.timestamp || 'N/A';
+                        row.insertCell().textContent = visit.collectionAmount !== null && visit.collectionAmount !== undefined ? visit.collectionAmount : '';
+                        row.insertCell().textContent = visit.customerSays || '';
+                        row.insertCell().textContent = visit.actionNeeded || '';
+                        row.insertCell().textContent = visit.staffName || '';
+                    });
+                    visitHistorySection.classList.remove('hidden');
+                    noHistoryMessage.classList.add('hidden');
+                } else {
+                    noHistoryMessage.classList.remove('hidden');
+                    visitHistorySection.classList.remove('hidden');
+                }
+                // Clear staff name specifically if it's a global input, or keep it if you want it to persist
+                // document.getElementById('staffName').value = ''; // Decide if you want to clear this
+                document.getElementById('collectionAmount').value = '0';
+                document.getElementById('customerSays').value = '';
+                document.getElementById('actionNeeded').value = '';
+            }
+        } catch (error) {
+            showLoading(false);
+            console.error("Fetch Loan Details Error:", error);
+            displayStatus("तपशील मिळवताना त्रुटी: " + error.message, true);
+        }
+    }
+
+    async function submitData() {
+        if (!currentLoanNo) { displayStatus("कृपया प्रथम कर्ज क्रमांक टाकून तपशील मिळवा.", true); return; }
+        
+        const staffNameVal = document.getElementById('staffName').value.trim();
+        if (!staffNameVal) {
+            displayStatus("कृपया कर्मचाऱ्याचे नाव प्रविष्ट करा.", true);
+            return;
+        }
+
+        const collectionAmountVal = document.getElementById('collectionAmount').value;
+        const customerSaysVal = document.getElementById('customerSays').value.trim();
+        const actionNeededVal = document.getElementById('actionNeeded').value.trim();
+        
+        const submissionPayload = { // This is the object that will be inside the 'data' field
+            loanNo: currentLoanNo,
+            staffName: staffNameVal,
+            collectionAmount: collectionAmountVal,
+            customerSays: customerSaysVal,
+            actionNeeded: actionNeededVal
+        };
+
+        if ( (collectionAmountVal === "" || parseFloat(collectionAmountVal) === 0) && customerSaysVal === "" && actionNeededVal === "" ) {
+             if (parseFloat(collectionAmountVal) === 0 && (customerSaysVal !== "" || actionNeededVal !== "" )) {/* Allow */} else {
+                 displayStatus("कृपया भेटीची किमान एक माहिती (जमा रक्कम, ग्राहकाचे म्हणणे, किंवा आवश्यक कारवाई) प्रविष्ट करा.", true); return;
+             }
+        }
+
+        showLoading(true);
+        try {
+            // The body of the POST request for Apps Script doPost(e) when e.postData.contents is parsed as JSON
+            const requestBody = {
+                action: "submitTrackingData",
+                data: submissionPayload // The actual data is nested here
+            };
+
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    // 'Content-Type': 'application/json', // Often not strictly needed for simple Apps Script doPost text/plain parsing
+                                                         // but good practice if the server *expects* JSON.
+                                                         // Apps Script doPost parses e.postData.contents as a string first.
+                },
+                body: JSON.stringify(requestBody) // Send the whole {action, data} object as a JSON string
+            });
+
+            if (!response.ok) {
+                 const errorText = await response.text();
+                 console.error('Server error response on submit:', response.status, errorText);
+                 throw new Error(`माहिती सबमिट करताना सर्व्हर त्रुटी (HTTP ${response.status}).`);
+            }
+
+            const result = await response.json(); // Expecting JSON response from Apps Script
+            showLoading(false);
+
+            if (result.status === "success") {
+                displayStatus(result.message, false);
+                fetchLoanDetails(); // Refresh details to show new entry
+            } else {
+                displayStatus(result.message || "एक अज्ञात त्रुटी आली.", true);
+            }
+        } catch (error) {
+            showLoading(false);
+            console.error("Submit Data Error:", error);
+            displayStatus("डेटा सबमिट करताना त्रुटी: " + error.message, true);
+        }
+    }
+  </script>
+</body>
+</html>
